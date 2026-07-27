@@ -15,6 +15,7 @@
   "payment_method",
   "frequency",
   "next_due_date",
+  "match_tolerance",
   "active"
  ],
  "fields": [
@@ -80,6 +81,13 @@
    "label": "Next Due Date",
    "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "match_tolerance",
+   "fieldtype": "Percent",
+   "label": "Match Tolerance %",
+   "default": "20",
+   "description": "A real supplier invoice within this % of the amount suppresses that period's projection (avoids double-counting the actual bill). Keep it tight when the supplier also bills other, differently-sized streams (e.g. Google licenses vs GCP usage); widen it for a single charge whose amount swings month to month."
   },
   {
    "fieldname": "active",

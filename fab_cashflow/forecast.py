@@ -108,17 +108,50 @@ def _supplier_outflows(company, start, end, cutoff=None):
     return out
 
 
+def _invoice_covers_period(supplier, d, frequency, amount, tolerance_pct):
+    """A real Purchase Invoice for this recurring charge already exists in d's period.
+
+    The recurring payment only fills periods with no actual invoice yet: once the
+    real invoice lands it is either projected by _supplier_outflows (still open)
+    or already out of the bank balance (paid), so projecting it again would double
+    count. Matching is by supplier + period + amount within tolerance, not supplier
+    alone: a supplier can bill several streams in one month (e.g. Google licenses
+    vs GCP usage), and a differently-sized invoice must not suppress this charge.
+    Period is the calendar month for Monthly, the calendar year for Annual; credit
+    notes never count as coverage.
+    """
+    from frappe.utils import get_first_day, get_last_day, get_year_ending, get_year_start
+
+    period_start, period_end = (
+        (get_first_day(d), get_last_day(d)) if frequency == "Monthly"
+        else (get_year_start(d), get_year_ending(d))
+    )
+    band = abs(flt(amount)) * flt(tolerance_pct) / 100.0
+    invoices = frappe.get_all(
+        "Purchase Invoice",
+        filters={
+            "supplier": supplier,
+            "docstatus": 1,
+            "is_return": 0,
+            "posting_date": ["between", [period_start, period_end]],
+        },
+        pluck="grand_total",
+    )
+    return any(abs(flt(total) - flt(amount)) <= band for total in invoices)
+
+
 def _recurring_outflows(start, end):
     out = []
     for r in frappe.get_all(
         "Recurring Payment",
         filters={"active": 1},
-        fields=["name", "supplier", "amount", "frequency", "next_due_date", "description"],
+        fields=["name", "supplier", "amount", "frequency", "next_due_date", "description", "match_tolerance"],
     ):
         step = 1 if r.frequency == "Monthly" else 12
+        tolerance = flt(r.match_tolerance) if r.match_tolerance is not None else 20.0
         d = getdate(r.next_due_date)
         while d <= end:
-            if d >= start:
+            if d >= start and not _invoice_covers_period(r.supplier, d, r.frequency, r.amount, tolerance):
                 out.append(
                     _event(d, "Outflow", r.amount, "Recurring Payment", r.name, r.description or r.supplier)
                 )
