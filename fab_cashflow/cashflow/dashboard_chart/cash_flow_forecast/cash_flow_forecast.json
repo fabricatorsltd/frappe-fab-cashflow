@@ -1,0 +1,17 @@
+{
+ "chart_name": "Cash Flow Forecast",
+ "chart_type": "Custom",
+ "creation": "2026-07-27 00:00:00",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "idx": 0,
+ "is_public": 1,
+ "modified": "2026-07-27 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Cashflow",
+ "name": "Cash Flow Forecast",
+ "owner": "Administrator",
+ "source": "Cash Flow Forecast",
+ "timeseries": 0,
+ "type": "Line"
+}
