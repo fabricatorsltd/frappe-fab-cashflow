@@ -9,7 +9,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letterhead": null,
- "module": "Fab Cashflow",
+ "module": "Cashflow",
  "name": "Cash Flow Forecast",
  "owner": "Administrator",
  "prepared_report": 0,
@@ -17,7 +17,11 @@
  "report_name": "Cash Flow Forecast",
  "report_type": "Script Report",
  "roles": [
-  {"role": "Accounts Manager"},
-  {"role": "Accounts User"}
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  }
  ]
 }

@@ -15,7 +15,7 @@
  "links": [],
  "modified": "2026-07-27 00:00:00.000000",
  "modified_by": "Administrator",
- "module": "Fab Cashflow",
+ "module": "Cashflow",
  "name": "Cashflow",
  "number_cards": [],
  "owner": "Administrator",
@@ -25,10 +25,34 @@
  "roles": [],
  "sequence_id": 31.0,
  "shortcuts": [
-  {"color": "Blue", "label": "Cash Flow Forecast", "link_to": "Cash Flow Forecast", "type": "Report", "doc_view": "Report"},
-  {"color": "Green", "label": "Calendar", "link_to": "Cash Flow Event", "type": "DocType", "doc_view": "Calendar"},
-  {"color": "Grey", "label": "Recurring Payments", "link_to": "Recurring Payment", "type": "DocType", "doc_view": "List"},
-  {"color": "Grey", "label": "Settings", "link_to": "Cash Flow Settings", "type": "DocType", "doc_view": ""}
+  {
+   "color": "Blue",
+   "label": "Cash Flow Forecast",
+   "link_to": "Cash Flow Forecast",
+   "type": "Report",
+   "doc_view": "Report"
+  },
+  {
+   "color": "Green",
+   "label": "Calendar",
+   "link_to": "Cash Flow Event",
+   "type": "DocType",
+   "doc_view": "Calendar"
+  },
+  {
+   "color": "Grey",
+   "label": "Recurring Payments",
+   "link_to": "Recurring Payment",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "color": "Grey",
+   "label": "Settings",
+   "link_to": "Cash Flow Settings",
+   "type": "DocType",
+   "doc_view": ""
+  }
  ],
  "title": "Cashflow",
  "type": "Workspace"
