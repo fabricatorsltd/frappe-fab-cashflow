@@ -13,6 +13,13 @@
   "overdue_grace_days",
   "amex_charge_day",
   "amex_cycle_day",
+  "section_payroll",
+  "payroll_net_account",
+  "payroll_f24_account",
+  "column_break_payroll",
+  "payroll_lookback_months",
+  "payroll_pay_day",
+  "payroll_f24_day",
   "section_actions",
   "rebuild"
  ],
@@ -68,6 +75,48 @@
    "label": "Amex Cycle Day",
    "default": "16",
    "description": "Cycle boundary: charges from day N of a month to day N-1 of the next settle together."
+  },
+  {
+   "fieldname": "section_payroll",
+   "fieldtype": "Section Break",
+   "label": "Payroll"
+  },
+  {
+   "fieldname": "payroll_net_account",
+   "fieldtype": "Link",
+   "label": "Net Salary Account",
+   "options": "Account",
+   "description": "Account the monthly net salary is accrued on; the forecast projects its recent monthly average as a bonifico outflow."
+  },
+  {
+   "fieldname": "payroll_f24_account",
+   "fieldtype": "Link",
+   "label": "Payroll F24 Account",
+   "options": "Account",
+   "description": "Social security / withholding account (INPS, IRPEF); its recent monthly average is projected as the payroll F24 outflow."
+  },
+  {
+   "fieldname": "column_break_payroll",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payroll_lookback_months",
+   "fieldtype": "Int",
+   "label": "Payroll Lookback (months)",
+   "default": "3",
+   "description": "Months of history averaged for the monthly payroll amounts. 0 disables the payroll forecast."
+  },
+  {
+   "fieldname": "payroll_pay_day",
+   "fieldtype": "Int",
+   "label": "Net Salary Day",
+   "default": "27"
+  },
+  {
+   "fieldname": "payroll_f24_day",
+   "fieldtype": "Int",
+   "label": "Payroll F24 Day",
+   "default": "16"
   },
   {
    "fieldname": "section_actions",

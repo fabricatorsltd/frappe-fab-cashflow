@@ -58,7 +58,7 @@
    "fieldname": "source_type",
    "fieldtype": "Select",
    "label": "Source",
-   "options": "Sales Invoice\nPurchase Invoice\nRecurring Payment\nAmex Settlement\nTax Deadline\nManual",
+   "options": "Sales Invoice\nPurchase Invoice\nRecurring Payment\nAmex Settlement\nTax Deadline\nPayroll\nManual",
    "in_list_view": 1,
    "in_standard_filter": 1
   },

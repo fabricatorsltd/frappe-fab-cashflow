@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import frappe
-from frappe.utils import add_days, add_months, flt, formatdate, getdate, today
+from frappe.utils import add_days, add_months, flt, formatdate, get_first_day, get_last_day, getdate, today
 
 
 def _settings():
@@ -27,6 +27,7 @@ def rebuild_forecast() -> dict:
     events += _recurring_outflows(start, end)
     events += _amex_settlements(s, start, end)
     events += _tax_deadlines(company, start, end)
+    events += _payroll_outflows(company, start, end, s)
 
     for e in events:
         doc = frappe.get_doc({"doctype": "Cash Flow Event", "generated": 1, **e})
@@ -34,6 +35,56 @@ def rebuild_forecast() -> dict:
         doc.insert()
     frappe.db.commit()
     return {"events": len(events), "from": str(start), "to": str(end)}
+
+
+def _monthly_average_credit(account, months, company) -> float:
+    """Average monthly credit posted on an account over the last N whole months.
+
+    Used to project payroll from history while there is no HR master data yet;
+    once JetHR posts real Salary Slips the same accounts carry the real figures,
+    so the projection tracks reality without a code change.
+    """
+    if not account or months <= 0:
+        return 0.0
+    period_end = get_first_day(today())
+    period_start = add_months(period_end, -months)
+    total = frappe.db.sql(
+        """select sum(credit) from `tabGL Entry`
+           where account=%s and company=%s and is_cancelled=0
+           and posting_date>=%s and posting_date<%s""",
+        (account, company, period_start, period_end),
+    )[0][0]
+    return round(flt(total) / months, 2)
+
+
+def _on_day(month_start, day) -> "date":
+    last = getdate(get_last_day(month_start)).day
+    return getdate(month_start).replace(day=min(int(day or 1), last))
+
+
+def _payroll_outflows(company, start, end, settings):
+    """Project monthly net salary and payroll F24 from the recent GL average."""
+    months = int(settings.payroll_lookback_months or 0)
+    if months <= 0:
+        return []
+    net = _monthly_average_credit(settings.payroll_net_account, months, company)
+    f24 = _monthly_average_credit(settings.payroll_f24_account, months, company)
+    if not net and not f24:
+        return []
+
+    out = []
+    cursor = get_first_day(start)
+    while cursor <= end:
+        if net > 0:
+            day = _on_day(cursor, settings.payroll_pay_day or 27)
+            if start <= day <= end:
+                out.append(_event(day, "Outflow", net, "Payroll", "payroll-net", "Stipendi netti"))
+        if f24 > 0:
+            day = _on_day(cursor, settings.payroll_f24_day or 16)
+            if start <= day <= end:
+                out.append(_event(day, "Outflow", f24, "Payroll", "payroll-f24", "F24 personale (INPS/IRPEF)"))
+        cursor = add_months(cursor, 1)
+    return out
 
 
 def opening_balance(settings=None) -> float:
