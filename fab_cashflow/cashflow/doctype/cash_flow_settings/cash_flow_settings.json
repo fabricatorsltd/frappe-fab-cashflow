@@ -110,7 +110,7 @@
    "fieldname": "payroll_pay_day",
    "fieldtype": "Int",
    "label": "Net Salary Day",
-   "default": "27"
+   "default": "10"
   },
   {
    "fieldname": "payroll_f24_day",

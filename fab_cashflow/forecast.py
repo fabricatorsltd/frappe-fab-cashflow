@@ -62,6 +62,16 @@ def _on_day(month_start, day) -> "date":
     return getdate(month_start).replace(day=min(int(day or 1), last))
 
 
+def _f24_due_date(month_start, base_day):
+    """National F24 rule: the 16th, moved to the 20th in August (Ferragosto), and
+    pushed to the next Monday when it lands on a weekend."""
+    day = 20 if getdate(month_start).month == 8 else int(base_day or 16)
+    due = _on_day(month_start, day)
+    while getdate(due).weekday() >= 5:
+        due = add_days(due, 1)
+    return due
+
+
 def _payroll_outflows(company, start, end, settings):
     """Project monthly net salary and payroll F24 from the recent GL average."""
     months = int(settings.payroll_lookback_months or 0)
@@ -76,11 +86,11 @@ def _payroll_outflows(company, start, end, settings):
     cursor = get_first_day(start)
     while cursor <= end:
         if net > 0:
-            day = _on_day(cursor, settings.payroll_pay_day or 27)
+            day = _on_day(cursor, settings.payroll_pay_day or 10)
             if start <= day <= end:
                 out.append(_event(day, "Outflow", net, "Payroll", "payroll-net", "Stipendi netti"))
         if f24 > 0:
-            day = _on_day(cursor, settings.payroll_f24_day or 16)
+            day = _f24_due_date(cursor, settings.payroll_f24_day)
             if start <= day <= end:
                 out.append(_event(day, "Outflow", f24, "Payroll", "payroll-f24", "F24 personale (INPS/IRPEF)"))
         cursor = add_months(cursor, 1)
