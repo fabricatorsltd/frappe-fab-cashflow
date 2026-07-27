@@ -37,13 +37,19 @@ def rebuild_forecast() -> dict:
 
 
 def opening_balance(settings=None) -> float:
-    """Current balance of the tracked cash account, the forecast's starting point."""
+    """Cash on the tracked account as of today, the forecast's starting point.
+
+    Balance is taken at today's date on purpose: entries already posted with a
+    future date (e.g. scheduled F24 payments) must not lower the starting point.
+    Those future movements still reach the forecast as projected outflows through
+    their own sources, so counting them in the opening too would be double.
+    """
     settings = settings or _settings()
     if not settings.cash_account:
         return 0.0
     from erpnext.accounts.utils import get_balance_on
 
-    return flt(get_balance_on(settings.cash_account))
+    return flt(get_balance_on(settings.cash_account, date=today()))
 
 
 def _event(date, direction, amount, source_type, ref, description):
