@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-07-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "supplier",
+  "category",
+  "description",
+  "column_break_head",
+  "amount",
+  "payment_method",
+  "frequency",
+  "next_due_date",
+  "active"
+ ],
+ "fields": [
+  {"fieldname": "naming_series", "fieldtype": "Select", "label": "Series", "options": "RP-", "default": "RP-", "hidden": 1},
+  {"fieldname": "supplier", "fieldtype": "Link", "label": "Supplier", "options": "Supplier", "reqd": 1, "in_list_view": 1, "in_standard_filter": 1},
+  {"fieldname": "category", "fieldtype": "Select", "label": "Category", "options": "Subscription\nInsurance\nOther", "default": "Subscription", "in_list_view": 1, "in_standard_filter": 1},
+  {"fieldname": "description", "fieldtype": "Data", "label": "Description"},
+  {"fieldname": "column_break_head", "fieldtype": "Column Break"},
+  {"fieldname": "amount", "fieldtype": "Currency", "label": "Amount", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "payment_method", "fieldtype": "Link", "label": "Payment Method", "options": "Mode of Payment"},
+  {"fieldname": "frequency", "fieldtype": "Select", "label": "Frequency", "options": "Monthly\nAnnual", "default": "Monthly", "in_list_view": 1},
+  {"fieldname": "next_due_date", "fieldtype": "Date", "label": "Next Due Date", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "active", "fieldtype": "Check", "label": "Active", "default": "1", "in_standard_filter": 1}
+ ],
+ "links": [],
+ "modified": "2026-07-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Fab Cashflow",
+ "name": "Recurring Payment",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "Accounts Manager", "create": 1, "read": 1, "write": 1, "delete": 1, "report": 1, "export": 1},
+  {"role": "Accounts User", "read": 1, "report": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-07-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "event_date",
+  "direction",
+  "amount",
+  "column_break_head",
+  "source_type",
+  "source_ref",
+  "generated",
+  "section_desc",
+  "description"
+ ],
+ "fields": [
+  {"fieldname": "naming_series", "fieldtype": "Select", "label": "Series", "options": "CFE-", "default": "CFE-", "hidden": 1},
+  {"fieldname": "event_date", "fieldtype": "Date", "label": "Date", "reqd": 1, "in_list_view": 1, "in_standard_filter": 1},
+  {"fieldname": "direction", "fieldtype": "Select", "label": "Direction", "options": "Inflow\nOutflow", "reqd": 1, "in_list_view": 1, "in_standard_filter": 1},
+  {"fieldname": "amount", "fieldtype": "Currency", "label": "Amount", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "column_break_head", "fieldtype": "Column Break"},
+  {"fieldname": "source_type", "fieldtype": "Select", "label": "Source", "options": "Sales Invoice\nPurchase Invoice\nRecurring Payment\nAmex Settlement\nTax Deadline\nManual", "in_list_view": 1, "in_standard_filter": 1},
+  {"fieldname": "source_ref", "fieldtype": "Data", "label": "Reference"},
+  {"fieldname": "generated", "fieldtype": "Check", "label": "Generated", "default": "1", "in_standard_filter": 1, "description": "Rebuilt by the forecast; manual events are kept across rebuilds."},
+  {"fieldname": "section_desc", "fieldtype": "Section Break"},
+  {"fieldname": "description", "fieldtype": "Data", "label": "Description", "in_list_view": 1}
+ ],
+ "links": [],
+ "modified": "2026-07-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Fab Cashflow",
+ "name": "Cash Flow Event",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "Accounts Manager", "create": 1, "read": 1, "write": 1, "delete": 1, "report": 1, "export": 1},
+  {"role": "Accounts User", "read": 1, "report": 1}
+ ],
+ "sort_field": "event_date",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 0
+}
