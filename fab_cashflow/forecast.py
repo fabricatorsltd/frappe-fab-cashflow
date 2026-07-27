@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import frappe
-from frappe.utils import add_days, add_months, flt, getdate, today
+from frappe.utils import add_days, add_months, flt, formatdate, getdate, today
 
 
 def _settings():
@@ -16,12 +16,14 @@ def rebuild_forecast() -> dict:
     company = s.company
     start = getdate(today())
     end = add_days(start, int(s.horizon_days or 120))
+    grace = int(s.overdue_grace_days or 0)
+    cutoff = add_days(start, -grace) if grace else None
 
     frappe.db.delete("Cash Flow Event", {"generated": 1})
 
     events = []
-    events += _customer_inflows(company, start, end)
-    events += _supplier_outflows(company, start, end)
+    events += _customer_inflows(company, start, end, cutoff)
+    events += _supplier_outflows(company, start, end, cutoff)
     events += _recurring_outflows(start, end)
     events += _amex_settlements(s, start, end)
     events += _tax_deadlines(company, start, end)
@@ -60,29 +62,49 @@ def _due(date, start):
     return start if d < start else d  # overdue items land on the first forecast day
 
 
-def _customer_inflows(company, start, end):
+def _stale(due_raw, cutoff):
+    """Overdue beyond the grace window: backlog to reconcile, not future cash."""
+    return cutoff is not None and due_raw < cutoff
+
+
+def _overdue_label(party, due_raw, start):
+    """Flag items pulled onto the first forecast day with their real due date."""
+    if due_raw < start:
+        return f"{party} (scaduta {formatdate(due_raw, 'dd/MM/yyyy')})"
+    return party
+
+
+def _customer_inflows(company, start, end, cutoff=None):
     out = []
     for r in frappe.get_all(
         "Sales Invoice",
         filters={"company": company, "docstatus": 1, "outstanding_amount": [">", 0]},
         fields=["name", "customer", "due_date", "outstanding_amount"],
     ):
+        due_raw = getdate(r.due_date or start)
+        if _stale(due_raw, cutoff):
+            continue
         due = _due(r.due_date, start)
         if due <= end:
-            out.append(_event(due, "Inflow", r.outstanding_amount, "Sales Invoice", r.name, r.customer))
+            label = _overdue_label(r.customer, due_raw, start)
+            out.append(_event(due, "Inflow", r.outstanding_amount, "Sales Invoice", r.name, label))
     return out
 
 
-def _supplier_outflows(company, start, end):
+def _supplier_outflows(company, start, end, cutoff=None):
     out = []
     for r in frappe.get_all(
         "Purchase Invoice",
         filters={"company": company, "docstatus": 1, "outstanding_amount": [">", 0]},
         fields=["name", "supplier", "due_date", "outstanding_amount"],
     ):
+        due_raw = getdate(r.due_date or start)
+        if _stale(due_raw, cutoff):
+            continue
         due = _due(r.due_date, start)
         if due <= end:
-            out.append(_event(due, "Outflow", r.outstanding_amount, "Purchase Invoice", r.name, r.supplier))
+            label = _overdue_label(r.supplier, due_raw, start)
+            out.append(_event(due, "Outflow", r.outstanding_amount, "Purchase Invoice", r.name, label))
     return out
 
 

@@ -10,6 +10,7 @@
   "amex_account",
   "column_break_cfg",
   "horizon_days",
+  "overdue_grace_days",
   "amex_charge_day",
   "amex_cycle_day",
   "section_actions",
@@ -46,6 +47,13 @@
    "fieldtype": "Int",
    "label": "Forecast Horizon (days)",
    "default": "120"
+  },
+  {
+   "fieldname": "overdue_grace_days",
+   "fieldtype": "Int",
+   "label": "Overdue Grace (days)",
+   "default": "90",
+   "description": "Invoices overdue by more than this are treated as backlog to reconcile and excluded from the forecast. 0 keeps every overdue item."
   },
   {
    "fieldname": "amex_charge_day",
