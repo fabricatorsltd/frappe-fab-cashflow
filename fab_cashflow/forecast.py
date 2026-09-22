@@ -141,20 +141,50 @@ def _overdue_label(party, due_raw, start):
     return party
 
 
+def _split_payment_inflows(invoices):
+    """Expected cash per split payment invoice, keyed by invoice name.
+
+    Under split payment (art. 17-ter DPR 633/72) the public administration pays the
+    taxable amount only and remits the VAT itself, so the VAT share of the
+    outstanding amount is cleared by a deduction and never reaches the bank.
+    Collectability and the net rule live in fab_italy_tax; without that app there is
+    no collectability on the invoice and nothing to correct.
+    """
+    if "fab_italy_tax" not in frappe.get_installed_apps():
+        return {}
+
+    from fab_italy_tax.cashflow import (
+        get_split_payment_expected_cash,
+        get_split_payment_vat_by_invoice,
+    )
+
+    vat = get_split_payment_vat_by_invoice([r.name for r in invoices])
+    return {
+        r.name: get_split_payment_expected_cash(r.outstanding_amount, vat[r.name])
+        for r in invoices
+        if r.name in vat
+    }
+
+
 def _customer_inflows(company, start, end, cutoff=None):
     out = []
-    for r in frappe.get_all(
+    invoices = frappe.get_all(
         "Sales Invoice",
         filters={"company": company, "docstatus": 1, "outstanding_amount": [">", 0]},
         fields=["name", "customer", "due_date", "outstanding_amount"],
-    ):
+    )
+    split_payment = _split_payment_inflows(invoices)
+    for r in invoices:
         due_raw = getdate(r.due_date or start)
         if _stale(due_raw, cutoff):
             continue
+        amount = split_payment.get(r.name, flt(r.outstanding_amount))
+        if not amount:
+            continue  # a split payment invoice left with VAT only brings no cash
         due = _due(r.due_date, start)
         if due <= end:
             label = _overdue_label(r.customer, due_raw, start)
-            out.append(_event(due, "Inflow", r.outstanding_amount, "Sales Invoice", r.name, label))
+            out.append(_event(due, "Inflow", amount, "Sales Invoice", r.name, label))
     return out
 
 
